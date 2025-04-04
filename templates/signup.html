@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Ingredient Converter{% endblock %}
+
+{% block content %}
+<section class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Create an Account</h2>
+            <p>Join us to save your conversion history and more!</p>
+        </div>
+        
+        <form class="auth-form" method="POST" action="{{ url_for('auth.signup') }}">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            
+            <div class="form-group radio-group">
+                <label>Gender</label>
+                <div class="radio-options">
+                    <input type="radio" id="male" name="gender" value="male" required>
+                    <label for="male">Male</label>
+                    
+                    <input type="radio" id="female" name="gender" value="female">
+                    <label for="female">Female</label>
+                    
+                    <input type="radio" id="other" name="gender" value="other">
+                    <label for="other">Other</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            
+            <div class="form-group captcha-group">
+                <label for="captcha">Captcha: <span class="captcha-code">{{ captcha }}</span></label>
+                <input type="text" id="captcha" name="captcha" required>
+            </div>
+            
+            <button type="submit" class="btn primary-btn btn-block">Sign Up</button>
+            
+            <div class="auth-links">
+                <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
