@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required
-from ingredient_converter.models import User
-from ingredient_converter.extensions import mongo
+from models import User
+from extensions import mongo
 
 import random
 import string
