@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Ingredient Converter{% endblock %}
+
+{% block content %}
+<section class="dashboard-header">
+    <h1>Welcome, {{ name }}!</h1>
+    <p>Use the converter below to calculate ingredient weights</p>
+</section>
+
+<section class="dashboard-container">
+    <div class="converter-card">
+        <h2>Ingredient Converter</h2>
+        <div class="converter-form">
+            <div class="form-group">
+                <label for="spoon_type">Spoon Type</label>
+                <select id="spoon_type" name="spoon_type">
+                    <option value="Teaspoon (tsp)">Teaspoon (tsp)</option>
+                    <option value="Tablespoon (tbsp)">Tablespoon (tbsp)</option>
+                    <option value="Cup">Cup</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="ingredient_type">Ingredient Type</label>
+                <select id="ingredient_type" name="ingredient_type">
+                    <option value="Granulated">Granulated</option>
+                    <option value="Sandy Powdered">Sandy Powdered</option>
+                    <option value="Salt">Salt</option>
+                    <option value="Sugar">Sugar</option>
+                    <option value="Flour">Flour</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" name="quantity" min="0.1" step="0.1" value="1">
+            </div>
+            
+            <button id="convert-btn" class="btn primary-btn">Convert</button>
+        </div>
+        
+        <div class="conversion-result" id="result-container">
+            <h3>Result</h3>
+            <div id="result-display">
+                <p>Select options and click Convert</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="history-card">
+        <div class="history-header">
+            <h2>Conversion History</h2>
+        </div>
+        <div class="history-table-container">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Spoon Type</th>
+                        <th>Ingredient</th>
+                        <th>Quantity</th>
+                        <th>Result (g)</th>
+                    </tr>
+                </thead>
+                <tbody id="history-body">
+                    {% if history %}
+                        {% for item in history %}
+                            <tr>
+                                <td>{{ item.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ item.spoon_type }}</td>
+                                <td>{{ item.ingredient_type }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.result|round(1) }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="no-data">No conversion history yet</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const convertBtn = document.getElementById('convert-btn');
+    const resultDisplay = document.getElementById('result-display');
+    const historyBody = document.getElementById('history-body');
+    
+    convertBtn.addEventListener('click', function() {
+        const spoonType = document.getElementById('spoon_type').value;
+        const ingredientType = document.getElementById('ingredient_type').value;
+        const quantity = parseFloat(document.getElementById('quantity').value);
+        
+        const formData = new FormData();
+        formData.append('spoon_type', spoonType);
+        formData.append('ingredient_type', ingredientType);
+        formData.append('quantity', quantity);
+        
+        resultDisplay.innerHTML = '<p>Converting...</p>';
+        
+        fetch('/ml/convert', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                resultDisplay.innerHTML = `
+                    <div class="result-value">${data.result.toFixed(1)}g</div>
+                    <p>${data.message}</p>
+                `;
+                
+                const now = new Date();
+                const formattedDate = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                
+                const noDataRow = historyBody.querySelector('.no-data');
+                if (noDataRow) {
+                    historyBody.innerHTML = '';
+                }
+                
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>${formattedDate}</td>
+                    <td>${spoonType}</td>
+                    <td>${ingredientType}</td>
+                    <td>${quantity}</td>
+                    <td>${data.result.toFixed(1)}</td>
+                `;
+                
+                if (historyBody.firstChild) {
+                    historyBody.insertBefore(newRow, historyBody.firstChild);
+                } else {
+                    historyBody.appendChild(newRow);
+                }
+            } else {
+                resultDisplay.innerHTML = `<p class="error">Error: ${data.message}</p>`;
+            }
+        })
+        .catch(error => {
+            resultDisplay.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+        });
+    });
+});
+</script>
+{% endblock %}
