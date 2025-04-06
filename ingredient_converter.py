@@ -12,8 +12,8 @@ bcrypt = Bcrypt()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 
-# Mongo from custom extensions file
-from ingredient_converter.extensions import mongo
+# Mongo from extensions.py (same folder)
+from extensions import mongo
 
 def create_app():
     app = Flask(__name__)
@@ -27,19 +27,19 @@ def create_app():
     login_manager.init_app(app)
     mongo.init_app(app)
 
-    # Register blueprints
-    from ingredient_converter.main import main
-    from ingredient_converter.auth import auth
-    from ingredient_converter.dashboard import dashboard
-    from ingredient_converter.ml_service import ml
+    # Register blueprints (flat structure assumed)
+    from main import main
+    from auth import auth
+    from dashboard import dashboard
+    from ml_service import ml
 
     app.register_blueprint(main)
     app.register_blueprint(auth, url_prefix='/auth')
     app.register_blueprint(dashboard, url_prefix='/dashboard')
-    app.register_blueprint(ml, url_prefix='/ml')  # change route to /ml/convert
+    app.register_blueprint(ml, url_prefix='/ml')
 
     # User loader for Flask-Login
-    from ingredient_converter.models import User
+    from models import User
     from bson.objectid import ObjectId
 
     @login_manager.user_loader
