@@ -1,4 +1,4 @@
-from app_factory import create_app
+from ingredient_converter.app_factory import create_app
 
 
 app = create_app()
