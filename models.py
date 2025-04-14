@@ -1,6 +1,6 @@
 from flask_login import UserMixin
 from bson import ObjectId
-from ingredient_converter.extensions import mongo  # ✅ correct
+from extensions import mongo  # ✅ correct
 
 
 class User(UserMixin):

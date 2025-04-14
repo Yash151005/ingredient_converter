@@ -26,7 +26,7 @@ def create_app():
     app.register_blueprint(auth_blueprint, url_prefix="/auth")
     app.register_blueprint(main_blueprint)
     app.register_blueprint(dashboard_blueprint, url_prefix="/dashboard")
-    app.register_blueprint(ml_blueprint)
+    app.register_blueprint(ml_blueprint, url_prefix="/ml")  # ✅ Add url_prefix here!
 
     return app
 
